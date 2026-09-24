@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Another Store — Making Internet Funny Again</title>
+<style>
+/* ===== RESET & BASE ===== */
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{height:100%;scroll-behavior:smooth}
+body{
+  min-height:100%;font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;
+  -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;
+  overflow-x:hidden;color:#07405E;
+  background:linear-gradient(135deg,#E3F4FDFF 0%,#D895D9F6 30%,#D24DBBEC 60%,#D267D0C4 82%,#D897DC5F 100%);
+  background-attachment:fixed;
+}
+
+/* ===== ANIMATIONS ===== */
+@keyframes fadeUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
+@keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
+@keyframes pulse{0%,100%{opacity:.22}50%{opacity:.35}}
+@keyframes slideIn{from{opacity:0;transform:translateX(-20px)}to{opacity:1;transform:translateX(0)}}
+
+.anim-up{animation:fadeUp .7s ease-out both}
+.anim-fade{animation:fadeIn .6s ease-out both}
+.d1{animation-delay:.1s}.d2{animation-delay:.2s}.d3{animation-delay:.3s}
+.d4{animation-delay:.4s}.d5{animation-delay:.5s}.d6{animation-delay:.6s}
+
+/* ===== TOP GLOSS ===== */
+.top-gloss{
+  position:fixed;top:0;left:0;right:0;height:170px;z-index:0;pointer-events:none;
+  background:linear-gradient(to bottom,rgba(255,255,255,.63) 0%,rgba(255,255,255,.26) 55%,transparent 100%);
+}
+
+/* ===== BUBBLES ===== */
+.bubble{position:fixed;border-radius:50%;pointer-events:none;z-index:0}
+.bubble-lg{
+  width:320px;height:320px;left:-70px;top:38%;opacity:.30;
+  background:radial-gradient(circle at 35% 30%,#fff 0%,#BFE9FB 55%,transparent 100%);
+  animation:pulse 6s ease-in-out infinite;
+}
+.bubble-md{
+  width:400px;height:400px;right:-90px;top:-70px;opacity:.26;
+  background:radial-gradient(circle at 35% 30%,#fff 0%,#7CCBEE 58%,transparent 100%);
+  animation:pulse 8s ease-in-out infinite 1s;
+}
+.bubble-sm{
+  width:190px;height:190px;left:42%;bottom:4%;opacity:.22;
+  background:radial-gradient(circle at 35% 30%,#fff 0%,#B6E77A 60%,transparent 100%);
+  animation:float 7s ease-in-out infinite;
+}
+.bubble-xs{
+  width:120px;height:120px;right:15%;top:55%;opacity:.18;
+  background:radial-gradient(circle at 35% 30%,#fff 0%,#FFD97A 60%,transparent 100%);
+  animation:float 9s ease-in-out infinite 2s;
+}
+
+/* ===== LAYOUT ===== */
+.page{position:relative;z-index:1;max-width:1020px;margin:0 auto;padding:40px 24px 80px}
+
+/* ===== HEADER ===== */
+.shop-header{text-align:center;margin-bottom:40px}
+.shop-header h1{
+  font-size:36px;font-weight:300;color:#07405E;letter-spacing:-.5px;margin-bottom:4px;
+}
+.shop-header .slogan{
+  font-size:15px;color:#0B5C8A;font-weight:600;letter-spacing:.3px;margin-bottom:18px;
+}
+
+/* ===== SEARCH BAR ===== */
+.search-wrap{
+  max-width:480px;margin:0 auto 12px;position:relative;
+}
+.search-input{
+  width:100%;height:42px;padding:0 44px 0 18px;border-radius:21px;border:1px solid rgba(255,255,255,.5);
+  background:rgba(255,255,255,.55);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+  font-family:inherit;font-size:14px;color:#07405E;outline:none;
+  transition:border-color .2s,box-shadow .2s,background .2s;
+}
+.search-input::placeholder{color:#2C5F7E;opacity:.6}
+.search-input:focus{
+  border-color:rgba(31,134,200,.5);background:rgba(255,255,255,.75);
+  box-shadow:0 0 0 3px rgba(31,134,200,.12);
+}
+.search-icon{
+  position:absolute;right:14px;top:50%;transform:translateY(-50%);
+  width:18px;height:18px;fill:#2C5F7E;pointer-events:none;
+}
+
+/* ===== AUDIO CONTROL ===== */
+.audio-bar{display:flex;align-items:center;justify-content:center;gap:10px;margin-top:14px}
+.audio-btn{
+  display:inline-flex;align-items:center;gap:6px;padding:6px 18px;border-radius:20px;
+  border:1px solid rgba(255,255,255,.5);background:rgba(255,255,255,.45);
+  color:#0B5C8A;font-size:12px;font-weight:600;cursor:pointer;
+  backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
+  transition:background .2s,border-color .2s,transform .1s;
+}
+.audio-btn:hover{background:rgba(255,255,255,.7);border-color:rgba(255,255,255,.8)}
+.audio-btn:active{transform:scale(.96)}
+.audio-btn svg{width:14px;height:14px;fill:currentColor}
+.audio-vis{display:flex;align-items:end;gap:2px;height:14px}
+.audio-vis span{
+  display:block;width:3px;border-radius:2px;
+  background:linear-gradient(to top,#39A5DC,#8FD9F7);
+  animation:visBar .8s ease-in-out infinite alternate;
+}
+.audio-vis span:nth-child(1){height:6px;animation-delay:0s}
+.audio-vis span:nth-child(2){height:12px;animation-delay:.15s}
+.audio-vis span:nth-child(3){height:8px;animation-delay:.3s}
+.audio-vis span:nth-child(4){height:14px;animation-delay:.1s}
+.audio-vis span:nth-child(5){height:5px;animation-delay:.25s}
+.audio-vis.paused span{animation:none;height:3px!important}
+@keyframes visBar{0%{height:3px}100%{height:14px}}
+
+/* ===== SECTION TITLES ===== */
+.section-title{
+  font-size:18px;font-weight:300;color:#07405E;margin:40px 0 18px;
+  padding-left:14px;border-left:4px solid #1F86C8;
+}
+
+/* ===== CAROUSEL ===== */
+.carousel{
+  position:relative;border-radius:14px;overflow:hidden;
+  box-shadow:0 2px 16px rgba(10,58,86,.28);margin-bottom:8px;
+  aspect-ratio:21/9;
+}
+.carousel-track{display:flex;transition:transform .5s cubic-bezier(.4,0,.2,1);height:100%}
+.carousel-slide{
+  min-width:100%;height:100%;display:flex;align-items:center;justify-content:center;
+  position:relative;overflow:hidden;
+}
+.carousel-slide .slide-bg{
+  position:absolute;inset:0;
+  background:linear-gradient(135deg,rgba(191,233,251,.9),rgba(124,203,238,.7));
+}
+.carousel-slide .slide-content{
+  position:relative;z-index:1;text-align:center;padding:32px;
+}
+.carousel-slide .slide-content h3{font-size:24px;font-weight:300;color:#07405E;margin-bottom:6px}
+.carousel-slide .slide-content p{font-size:14px;color:#2C5F7E;max-width:500px;margin:0 auto}
+.carousel-dots{
+  display:flex;justify-content:center;gap:8px;margin-top:14px;
+}
+.carousel-dot{
+  width:10px;height:10px;border-radius:50%;border:1px solid rgba(255,255,255,.6);
+  background:rgba(255,255,255,.4);cursor:pointer;transition:all .2s;
+}
+.carousel-dot.active{background:#1F86C8;border-color:#1F86C8;transform:scale(1.2)}
+.carousel-nav{
+  position:absolute;top:50%;transform:translateY(-50%);z-index:2;
+  width:36px;height:36px;border-radius:50%;border:1px solid rgba(255,255,255,.5);
+  background:rgba(255,255,255,.5);backdrop-filter:blur(6px);cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  transition:background .2s,transform .1s;
+}
+.carousel-nav:hover{background:rgba(255,255,255,.8)}
+.carousel-nav:active{transform:translateY(-50%) scale(.92)}
+.carousel-nav svg{width:16px;height:16px;fill:#07405E}
+.carousel-prev{left:12px}
+.carousel-next{right:12px}
+
+/* ===== FEATURED GRID ===== */
+.featured-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px}
+.app-card{
+  border-radius:14px;padding:20px;border:1px solid rgba(255,255,255,.5);
+  background:linear-gradient(to bottom,rgba(237,255,255,.93) 0%,rgba(196,255,255,.77) 45%,rgba(176,235,248,1) 100%);
+  box-shadow:0 2px 16px rgba(10,58,86,.28);
+  backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+  transition:transform .25s,box-shadow .25s;cursor:pointer;
+  display:flex;flex-direction:column;gap:8px;
+}
+.app-card:hover{transform:translateY(-4px);box-shadow:0 6px 24px rgba(10,58,86,.35)}
+.app-card .app-icon{
+  width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;
+  background:linear-gradient(to bottom,#8FD9F7 0%,#39A5DC 49%,#1B7FC0 51%,#39B0E4 100%);
+  box-shadow:0 2px 8px rgba(10,58,86,.2);
+}
+.app-card .app-icon svg{width:24px;height:24px;fill:#fff}
+.app-card .app-icon.green{
+  background:linear-gradient(to bottom,#CBF08F 0%,#74C23C 49%,#4E9C22 51%,#7FCF43 100%);
+}
+.app-card .app-icon.amber{
+  background:linear-gradient(to bottom,#FFE6A8 0%,#F0A93A 49%,#D5871B 51%,#F7B950 100%);
+}
+.app-card .app-icon.red{
+  background:linear-gradient(to bottom,#FFB6A6 0%,#DD5C3E 49%,#B63B22 51%,#E0704F 100%);
+}
+.app-card h3{font-size:15px;font-weight:600;color:#07405E}
+.app-card p{font-size:12px;color:#2C5F7E;line-height:1.5;flex:1}
+.app-card .tag{
+  display:inline-block;font-size:10px;font-weight:600;text-transform:uppercase;
+  letter-spacing:.5px;padding:3px 8px;border-radius:10px;
+  background:rgba(31,134,200,.12);color:#1F86C8;align-self:flex-start;
+}
+
+/* ===== MAIN PRODUCT CARD ===== */
+.product-card{
+  position:relative;border-radius:14px;padding:28px;border:1px solid rgba(255,255,255,.5);
+  background:linear-gradient(to bottom,rgba(237,255,255,.93) 0%,rgba(196,255,255,.77) 45%,rgba(176,235,248,1) 100%);
+  box-shadow:0 2px 16px rgba(10,58,86,.28);
+  backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+  display:grid;grid-template-columns:1fr 1fr;gap:32px;align-items:start;
+}
+.product-info h2{font-size:22px;font-weight:300;color:#07405E;margin-bottom:4px}
+.product-info .version{font-size:12px;color:#2C5F7E;margin-bottom:16px;display:block}
+.product-info .desc{font-size:13.5px;line-height:1.65;color:#07405E;margin-bottom:18px}
+.product-info .features{list-style:none;margin-bottom:22px}
+.product-info .features li{
+  font-size:12.5px;color:#2C5F7E;padding:4px 0 4px 18px;position:relative;line-height:1.5;
+}
+.product-info .features li::before{
+  content:'';position:absolute;left:0;top:10px;width:8px;height:8px;border-radius:50%;
+  background:linear-gradient(to bottom,#8FD9F7 0%,#39A5DC 49%,#1B7FC0 51%,#39B0E4 100%);
+}
+.product-action{
+  display:flex;flex-direction:column;gap:14px;padding:20px;border-radius:12px;
+  background:rgba(255,255,255,.35);border:1px solid rgba(255,255,255,.4);
+}
+.product-action .label{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#2C5F7E;font-weight:600}
+.product-action .price{font-size:28px;font-weight:300;color:#07405E;margin:2px 0 8px}
+.product-action .price span{font-size:13px;color:#2C5F7E;font-weight:400}
+
+/* ===== GLOSS BUTTON ===== */
+.btn-gloss{
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  height:44px;padding:0 28px;border:none;border-radius:9px;
+  font-family:inherit;font-size:14px;font-weight:600;color:#fff;cursor:pointer;
+  text-decoration:none;position:relative;overflow:hidden;
+  background:linear-gradient(to bottom,#8FD9F7 0%,#39A5DC 49%,#1B7FC0 51%,#39B0E4 100%);
+  box-shadow:0 2px 16px rgba(10,58,86,.28);border:1px solid rgba(255,255,255,.35);
+  transition:transform .1s,opacity .15s,box-shadow .2s;
+}
+.btn-gloss::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:17px;border-radius:8px 8px 14px 14px;
+  background:linear-gradient(to bottom,rgba(255,255,255,.72) 0%,rgba(255,255,255,.22) 48%,transparent 50%);
+  pointer-events:none;
+}
+.btn-gloss:hover{box-shadow:0 2px 20px rgba(10,58,86,.35);border-color:rgba(255,255,255,.7)}
+.btn-gloss:active{transform:translateY(1px);opacity:.88}
+.btn-gloss svg{width:16px;height:16px;fill:currentColor}
+.btn-gloss.green{background:linear-gradient(to bottom,#CBF08F 0%,#74C23C 49%,#4E9C22 51%,#7FCF43 100%)}
+
+.req-box{
+  margin-top:14px;padding:12px 14px;border-radius:8px;
+  background:rgba(255,255,255,.3);border:1px solid rgba(255,255,255,.35);
+  font-size:11.5px;color:#2C5F7E;line-height:1.6;
+}
+.req-box strong{color:#07405E;font-weight:600}
+
+/* ===== NEWS SECTION ===== */
+.news-list{display:flex;flex-direction:column;gap:12px}
+.news-item{
+  display:flex;gap:16px;align-items:flex-start;padding:16px 18px;border-radius:12px;
+  border:1px solid rgba(255,255,255,.45);background:rgba(255,255,255,.4);
+  backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+  transition:background .2s,transform .2s;
+}
+.news-item:hover{background:rgba(255,255,255,.6);transform:translateX(4px)}
+.news-date{
+  flex-shrink:0;text-align:center;min-width:52px;padding:6px 0;border-radius:8px;
+  background:linear-gradient(to bottom,#8FD9F7 0%,#39A5DC 49%,#1B7FC0 51%,#39B0E4 100%);
+  color:#fff;
+}
+.news-date .day{font-size:18px;font-weight:700;line-height:1}
+.news-date .month{font-size:10px;text-transform:uppercase;letter-spacing:.5px;margin-top:2px}
+.news-body h4{font-size:14px;font-weight:600;color:#07405E;margin-bottom:3px}
+.news-body p{font-size:12.5px;color:#2C5F7E;line-height:1.5}
+.news-badge{
+  display:inline-block;font-size:9px;font-weight:700;text-transform:uppercase;
+  letter-spacing:.5px;padding:2px 7px;border-radius:6px;margin-bottom:4px;
+}
+.news-badge.new{background:rgba(76,162,43,.15);color:#4CA22B}
+.news-badge.update{background:rgba(31,134,200,.15);color:#1F86C8}
+.news-badge.soon{background:rgba(224,140,30,.15);color:#E08C1E}
+
+/* ===== FOOTER ===== */
+.shop-footer{text-align:center;margin-top:56px;font-size:11px;color:#2C5F7E;opacity:.7}
+
+/* ===== RESPONSIVE ===== */
+@media(max-width:700px){
+  .product-card{grid-template-columns:1fr;gap:20px}
+  .shop-header h1{font-size:28px}
+  .carousel{aspect-ratio:16/9}
+  .bubble-lg,.bubble-md,.bubble-xs{display:none}
+  .featured-grid{grid-template-columns:1fr 1fr}
+}
+@media(max-width:480px){
+  .featured-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<!-- Decorative layers -->
+<div class="top-gloss"></div>
+<div class="bubble bubble-lg"></div>
+<div class="bubble bubble-md"></div>
+<div class="bubble bubble-sm"></div>
+<div class="bubble bubble-xs"></div>
+
+<!-- Audio (autoplay attempted, fallback to button) -->
+<audio id="shopMusic" loop preload="auto">
+  <source src="Another Shop Theme (HQ).mp3" type="audio/mpeg">
+</audio>
+
+<div class="page">
+
+  <!-- ===== HEADER ===== -->
+  <header class="shop-header anim-up">
+    <h1>Another Store</h1>
+    <p class="slogan">Making internet funny again since 2026</p>
+
+    <div class="search-wrap anim-up d1">
+      <input class="search-input" type="text" id="searchInput" placeholder="Buscar aplicaciones, herramientas, utilidades…">
+      <svg class="search-icon" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.47 6.47 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+    </div>
+
+    <div class="audio-bar anim-up d2">
+      <button class="audio-btn" id="musicToggle" type="button">
+        <div class="audio-vis paused" id="audioVis">
+          <span></span><span></span><span></span><span></span><span></span>
+        </div>
+        <span id="musicLabel">Reproducir música</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- ===== CAROUSEL ===== -->
+  <h2 class="section-title anim-up d2">Destacados</h2>
+  <div class="carousel anim-up d3" id="carousel">
+    <div class="carousel-track" id="carouselTrack">
+      <div class="carousel-slide">
+        <div class="slide-bg" style="background:linear-gradient(135deg,rgba(191,233,251,.95),rgba(111,199,240,.7))"></div>
+        <div class="slide-content">
+          <h3>🛠️ Emi Toolkit — Nuevo</h3>
+          <p>Mantenimiento completo para Windows 11 en un clic. Limpieza, optimización, privacidad y firewall ESET. Portable y reversible.</p>
+        </div>
+      </div>
+      <div class="carousel-slide">
+        <div class="slide-bg" style="background:linear-gradient(135deg,rgba(182,231,122,.9),rgba(124,203,238,.7))"></div>
+        <div class="slide-content">
+          <h3>🎨 Aero Glass UI Kit</h3>
+          <p>Sistema de diseño Frutiger Aero completo con tokens XAML, gradientes glossy y componentes WPF listos para usar.</p>
+        </div>
+      </div>
+      <div class="carousel-slide">
+        <div class="slide-bg" style="background:linear-gradient(135deg,rgba(255,217,122,.9),rgba(255,166,148,.6))"></div>
+        <div class="slide-content">
+          <h3>🚀 Próximamente</h3>
+          <p>Nuevas herramientas y utilidades con el mismo estilo aero glass. Mantente atento a las novedades.</p>
+        </div>
+      </div>
+    </div>
+    <button class="carousel-nav carousel-prev" id="carouselPrev" type="button">
+      <svg viewBox="0 0 24 24"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg>
+    </button>
+    <button class="carousel-nav carousel-next" id="carouselNext" type="button">
+      <svg viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
+    </button>
+  </div>
+  <div class="carousel-dots anim-fade d4" id="carouselDots"></div>
+
+  <!-- ===== FEATURED APPS ===== -->
+  <h2 class="section-title anim-up d3">Aplicaciones destacadas</h2>
+  <div class="featured-grid anim-up d4" id="appsGrid">
+
+    <div class="app-card" data-name="emi toolkit mantenimiento windows optimizar limpiar">
+      <div class="app-icon green">
+        <svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58a.49.49 0 0 0 .12-.61l-1.92-3.32a.49.49 0 0 0-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54a.48.48 0 0 0-.48-.41h-3.84a.48.48 0 0 0-.48.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96a.49.49 0 0 0-.59.22L2.09 8.83a.49.49 0 0 0 .12.61l2.03 1.58c-.05.3-.07.62-.07.94s.02.64.07.94l-2.03 1.58a.49.49 0 0 0-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.27.41.48.41h3.84c.24 0 .44-.17.48-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6A3.6 3.6 0 1 1 12 8.4a3.6 3.6 0 0 1 0 7.2z"/></svg>
+      </div>
+      <h3>Emi Toolkit</h3>
+      <p>Mantenimiento todo-en-uno para Windows 11. Limpieza, optimización y privacidad.</p>
+      <span class="tag">Utilidad</span>
+    </div>
+
+    <div class="app-card" data-name="aero glass ui kit diseño xaml wpf frutiger">
+      <div class="app-icon">
+        <svg viewBox="0 0 24 24"><path d="M12 22C6.49 22 2 17.51 2 12S6.49 2 12 2s10 4.04 10 9c0 3.31-2.69 6-6 6h-1.77c-.28 0-.5.22-.5.5 0 .12.05.23.13.33.41.49.63 1.09.63 1.72 0 1.37-1.12 2.47-2.49 2.45zm0-18c-4.41 0-8 3.59-8 8s3.59 8 8 8c.28 0 .5-.22.5-.5a.54.54 0 0 0-.13-.33c-.41-.49-.63-1.09-.63-1.72 0-1.37 1.12-2.47 2.49-2.45H16c2.21 0 4-1.79 4-4 0-3.86-3.59-7-8-7z"/><circle cx="7.5" cy="11.5" r="1.5"/><circle cx="10.5" cy="7.5" r="1.5"/><circle cx="16.5" cy="11.5" r="1.5"/></svg>
+      </div>
+      <h3>Aero Glass UI Kit</h3>
+      <p>Sistema de diseño Frutiger Aero con tokens, gradientes y componentes WPF.</p>
+      <span class="tag">Diseño</span>
+    </div>
+
+    <div class="app-card" data-name="zen browser navegador web rapido privado">
+      <div class="app-icon amber">
+        <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
+      </div>
+      <h3>Zen Browser</h3>
+      <p>Navegador rápido y privado. Integración directa con Emi Toolkit.</p>
+      <span class="tag">Navegador</span>
+    </div>
+
+    <div class="app-card" data-name="firewall eset seguridad red proteccion kb332">
+      <div class="app-icon red">
+        <svg viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z"/></svg>
+      </div>
+      <h3>ESET Firewall Rules</h3>
+      <p>Reglas KB332 para ESET. Protección de red simplificada y automatizada.</p>
+      <span class="tag">Seguridad</span>
+    </div>
+
+  </div>
+
+  <!-- ===== MAIN PRODUCT ===== -->
+  <h2 class="section-title anim-up d4">Producto principal</h2>
+  <section class="product-card anim-up d5">
+    <div class="product-info">
+      <h2>Emi Toolkit</h2>
+      <span class="version">v2026.09 · Portable · Windows 11 / 10</span>
+      <p class="desc">
+        Aplicación de mantenimiento para Windows 11 con interfaz WPF y transparencia
+        acrylic nativa. Sin terminal, sin instalación, sin compilar nada: es una carpeta
+        portable. Un clic en <strong>Optimizar ahora</strong> limpia disco, quita telemetría,
+        desactiva servicios innecesarios, ajusta el firewall de ESET y más — todo reversible.
+      </p>
+      <ul class="features">
+        <li>Limpieza de disco completa (temporales, caché, logs, papelera)</li>
+        <li>19 optimizaciones de Windows 11 (Widgets, Copilot, Bing, Game Bar…)</li>
+        <li>17 ajustes de privacidad y telemetría nivel 0</li>
+        <li>Gestión de arranque, procesos y RAM</li>
+        <li>Firewall ESET KB332 · Zen Browser como predeterminado</li>
+        <li>Deshacer todos los cambios en un clic</li>
+      </ul>
+    </div>
+    <div class="product-action">
+      <span class="label">Descarga directa</span>
+      <div class="price">Gratis <span>· Google Drive</span></div>
+      <a class="btn-gloss green" href="https://drive.google.com/drive/folders/1YOUR_FOLDER_ID" target="_blank" rel="noopener noreferrer">
+        <svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+        Descargar EmiToolkit
+      </a>
+      <div class="req-box">
+        <strong>Requisitos:</strong> Windows 11 (build 26200+) o Windows 10 1809+,
+        PowerShell 5.1 y .NET Framework 4.8 (incluidos de serie). La transparencia
+        acrylic requiere Windows 11 22H2+.
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== NEWS ===== -->
+  <h2 class="section-title anim-up d5">Novedades</h2>
+  <div class="news-list anim-up d6">
+
+    <div class="news-item">
+      <div class="news-date"><span class="day">08</span><span class="month">Sep</span></div>
+      <div class="news-body">
+        <span class="news-badge new">Nuevo</span>
+        <h4>Another Store abre sus puertas</h4>
+        <p>Lanzamiento oficial de la tienda con estilo Frutiger Aero y el primer producto disponible: Emi Toolkit.</p>
+      </div>
+    </div>
+
+    <div class="news-item">
+      <div class="news-date"><span class="day">07</span><span class="month">Sep</span></div>
+      <div class="news-body">
+        <span class="news-badge update">Actualización</span>
+        <h4>Emi Toolkit v2026.09</h4>
+        <p>Nuevos módulos de procesos y RAM, buscador de archivos pesados, y reglas actualizadas del KB332 de ESET.</p>
+      </div>
+    </div>
+
+    <div class="news-item">
+      <div class="news-date"><span class="day">02</span><span class="month">Sep</span></div>
+      <div class="news-body">
+        <span class="news-badge soon">Próximamente</span>
+        <h4>Aero Glass UI Kit para web</h4>
+        <p>Portando el sistema de diseño Aero Glass a CSS y componentes web. Tokens, gradientes y botones glossy para cualquier proyecto.</p>
+      </div>
+    </div>
+
+  </div>
+
+  <footer class="shop-footer anim-fade d6">
+    Another Store &copy; 2026 · Making internet funny again since 2026
+  </footer>
+
+</div>
+
+<script>
+(function(){
+  /* ===== AUDIO AUTOPLAY + TOGGLE ===== */
+  var audio = document.getElementById('shopMusic');
+  var btn = document.getElementById('musicToggle');
+  var label = document.getElementById('musicLabel');
+  var vis = document.getElementById('audioVis');
+  var playing = false;
+  audio.volume = 0.45;
+
+  function setPlaying(state){
+    playing = state;
+    label.textContent = playing ? 'Pausar música' : 'Reproducir música';
+    if(playing){ vis.classList.remove('paused'); } else { vis.classList.add('paused'); }
+  }
+
+  // Autoplay on load (browsers may block; first interaction unlocks)
+  var p = audio.play();
+  if(p && p.then){
+    p.then(function(){ setPlaying(true); })
+     .catch(function(){
+       // Retry on first user interaction anywhere on page
+       function unlock(){
+         audio.play().then(function(){ setPlaying(true); }).catch(function(){});
+         document.removeEventListener('click', unlock);
+         document.removeEventListener('keydown', unlock);
+         document.removeEventListener('touchstart', unlock);
+       }
+       document.addEventListener('click', unlock);
+       document.addEventListener('keydown', unlock);
+       document.addEventListener('touchstart', unlock);
+     });
+  }
+
+  btn.addEventListener('click', function(e){
+    e.stopPropagation();
+    if(playing){ audio.pause(); setPlaying(false); }
+    else { audio.play().then(function(){ setPlaying(true); }).catch(function(){}); }
+  });
+
+  /* ===== CAROUSEL ===== */
+  var track = document.getElementById('carouselTrack');
+  var slides = track.children;
+  var dotsWrap = document.getElementById('carouselDots');
+  var current = 0;
+  var total = slides.length;
+  var autoTimer;
+
+  // Create dots
+  for(var i = 0; i < total; i++){
+    var dot = document.createElement('div');
+    dot.className = 'carousel-dot' + (i === 0 ? ' active' : '');
+    dot.setAttribute('data-i', i);
+    dot.addEventListener('click', function(){ goTo(parseInt(this.getAttribute('data-i'))); });
+    dotsWrap.appendChild(dot);
+  }
+
+  function goTo(idx){
+    current = ((idx % total) + total) % total;
+    track.style.transform = 'translateX(-' + (current * 100) + '%)';
+    var dots = dotsWrap.children;
+    for(var d = 0; d < dots.length; d++){
+      dots[d].classList.toggle('active', d === current);
+    }
+    resetAuto();
+  }
+
+  document.getElementById('carouselPrev').addEventListener('click', function(){ goTo(current - 1); });
+  document.getElementById('carouselNext').addEventListener('click', function(){ goTo(current + 1); });
+
+  function resetAuto(){ clearInterval(autoTimer); autoTimer = setInterval(function(){ goTo(current + 1); }, 5000); }
+  resetAuto();
+
+  /* ===== SEARCH FILTER ===== */
+  var searchInput = document.getElementById('searchInput');
+  var cards = document.querySelectorAll('.app-card');
+
+  searchInput.addEventListener('input', function(){
+    var q = this.value.toLowerCase().trim();
+    cards.forEach(function(card){
+      var text = (card.getAttribute('data-name') || '') + ' ' + card.textContent.toLowerCase();
+      card.style.display = (!q || text.indexOf(q) !== -1) ? '' : 'none';
+    });
+  });
+
+})();
+</script>
+</body>
+</html>

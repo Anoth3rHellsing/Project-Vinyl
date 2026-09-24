@@ -1,0 +1,32 @@
+<Project>
+  <!--
+    Common pack-time items for NAudio NuGet packages. The icon is anchored
+    to the repo root via $(MSBuildThisFileDirectory) so it resolves
+    correctly from any csproj depth. The README include is conditional on
+    a README.md sitting next to the csproj — NAudio packages each have
+    their own per-package README; tool/test projects don't, so the
+    conditional include is silently inert for them.
+  -->
+  <ItemGroup>
+    <None Include="$(MSBuildThisFileDirectory)naudio-icon.png" Pack="true" PackagePath="" Visible="false" />
+  </ItemGroup>
+
+  <ItemGroup Condition="Exists('$(MSBuildProjectDirectory)\README.md')">
+    <None Include="README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
+
+  <!--
+    If PackageReleaseNotesFile is supplied (e.g. by the release workflow
+    passing -p:PackageReleaseNotesFile=<path>), load its contents into
+    PackageReleaseNotes so NuGet displays them on the package page.
+    No-op when the property is unset or the file is missing, so local
+    `dotnet pack` keeps working with no extra setup.
+  -->
+  <Target Name="LoadPackageReleaseNotesFromFile"
+          BeforeTargets="GenerateNuspec"
+          Condition="'$(PackageReleaseNotesFile)' != '' and Exists('$(PackageReleaseNotesFile)')">
+    <PropertyGroup>
+      <PackageReleaseNotes>$([System.IO.File]::ReadAllText('$(PackageReleaseNotesFile)'))</PackageReleaseNotes>
+    </PropertyGroup>
+  </Target>
+</Project>

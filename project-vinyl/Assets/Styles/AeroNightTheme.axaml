@@ -1,0 +1,252 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- Window: Radial gradient background + white text -->
+    <Style Selector="Window">
+        <Setter Property="FontFamily" Value="Segoe UI" />
+        <Setter Property="Foreground" Value="#FFFFFF" />
+        <Setter Property="Background">
+            <RadialGradientBrush Center="0.5,1.2" GradientOrigin="0.5,1.2" RadiusX="1.0" RadiusY="1.0">
+                <GradientStop Offset="0.00" Color="#1A4A7A" />
+                <GradientStop Offset="0.40" Color="#0A2540" />
+                <GradientStop Offset="1.00" Color="#051525" />
+            </RadialGradientBrush>
+        </Setter>
+    </Style>
+
+    <!-- Primary Button (pill shape, cyan-to-blue gradient) -->
+    <Style Selector="Button">
+        <Setter Property="MinHeight" Value="38" />
+        <Setter Property="CornerRadius" Value="30" />
+        <Setter Property="Padding" Value="24,10" />
+        <Setter Property="FontWeight" Value="Bold" />
+        <Setter Property="FontSize" Value="14" />
+        <Setter Property="Foreground" Value="#FFFFFF" />
+        <Setter Property="BorderBrush" Value="#4DFFFFFF" />
+        <Setter Property="BorderThickness" Value="2" />
+        <Setter Property="Background">
+            <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                <GradientStop Offset="0.00" Color="#6DD5FA" />
+                <GradientStop Offset="1.00" Color="#2980B9" />
+            </LinearGradientBrush>
+        </Setter>
+        <Setter Property="Transitions">
+            <Transitions>
+                <BrushTransition Property="BorderBrush" Duration="0:0:0.15" />
+                <BrushTransition Property="Background" Duration="0:0:0.15" />
+            </Transitions>
+        </Setter>
+    </Style>
+
+    <Style Selector="Button:pointerover">
+        <Setter Property="BorderBrush" Value="#B3FFFFFF" />
+        <Setter Property="Background">
+            <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                <GradientStop Offset="0.00" Color="#8DE5FF" />
+                <GradientStop Offset="1.00" Color="#3A9FD9" />
+            </LinearGradientBrush>
+        </Setter>
+    </Style>
+
+    <Style Selector="Button:pressed">
+        <Setter Property="Background">
+            <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                <GradientStop Offset="0.00" Color="#5CC5EA" />
+                <GradientStop Offset="1.00" Color="#1F70A9" />
+            </LinearGradientBrush>
+        </Setter>
+    </Style>
+
+    <Style Selector="Button:disabled">
+        <Setter Property="Opacity" Value="0.45" />
+    </Style>
+
+    <Style Selector="Button:focus-visible">
+        <Setter Property="BorderBrush" Value="#6DD5FA" />
+    </Style>
+
+    <!-- Ghost/Nav Button variant -->
+    <Style Selector="Button.ghost">
+        <Setter Property="MinHeight" Value="34" />
+        <Setter Property="CornerRadius" Value="16" />
+        <Setter Property="Padding" Value="16,8" />
+        <Setter Property="Background" Value="#26FFFFFF" />
+        <Setter Property="BorderBrush" Value="#1AFFFFFF" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="FontSize" Value="13" />
+        <Setter Property="Foreground" Value="#FFFFFF" />
+        <Setter Property="HorizontalContentAlignment" Value="Center" />
+    </Style>
+
+    <Style Selector="Button.ghost:pointerover">
+        <Setter Property="Background" Value="#33FFFFFF" />
+    </Style>
+
+    <Style Selector="Button.ghost.active">
+        <Setter Property="BorderBrush" Value="#6DD5FA" />
+        <Setter Property="BorderThickness" Value="2" />
+    </Style>
+
+    <!-- Circular icon button (for playback controls) -->
+    <Style Selector="Button.circle">
+        <Setter Property="Width" Value="44" />
+        <Setter Property="Height" Value="44" />
+        <Setter Property="CornerRadius" Value="22" />
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="Background" Value="#26FFFFFF" />
+        <Setter Property="BorderBrush" Value="#1AFFFFFF" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="FontSize" Value="18" />
+        <Setter Property="Foreground" Value="#FFFFFF" />
+        <Setter Property="HorizontalContentAlignment" Value="Center" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+    </Style>
+
+    <Style Selector="Button.circle:pointerover">
+        <Setter Property="Background" Value="#33FFFFFF" />
+        <Setter Property="BorderBrush" Value="#6DD5FA" />
+    </Style>
+
+    <!-- TextBox (dark glass style) -->
+    <Style Selector="TextBox">
+        <Setter Property="MinHeight" Value="38" />
+        <Setter Property="Background" Value="#4D000000" />
+        <Setter Property="Foreground" Value="#FFFFFF" />
+        <Setter Property="BorderBrush" Value="#1AFFFFFF" />
+        <Setter Property="BorderThickness" Value="2" />
+        <Setter Property="CornerRadius" Value="12" />
+        <Setter Property="Padding" Value="14,8" />
+        <Setter Property="CaretBrush" Value="#6DD5FA" />
+        <Setter Property="SelectionBrush" Value="#4D6DD5FA" />
+        <Setter Property="FontSize" Value="14" />
+    </Style>
+
+    <Style Selector="TextBox:focus">
+        <Setter Property="BorderBrush" Value="#6DD5FA" />
+    </Style>
+
+    <!-- ProgressBar (cyan fill on dark track) -->
+    <Style Selector="ProgressBar">
+        <Setter Property="Height" Value="8" />
+        <Setter Property="CornerRadius" Value="4" />
+        <Setter Property="Background" Value="#26FFFFFF" />
+        <Setter Property="Foreground" Value="#6DD5FA" />
+    </Style>
+
+    <!-- Slider (AeroNight dark style) -->
+    <Style Selector="Slider">
+        <Setter Property="MinHeight" Value="24" />
+    </Style>
+
+    <!-- ListBox (transparent bg, glass items) -->
+    <Style Selector="ListBox">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderThickness" Value="0" />
+    </Style>
+
+    <Style Selector="ListBoxItem">
+        <Setter Property="CornerRadius" Value="8" />
+        <Setter Property="Padding" Value="12,8" />
+        <Setter Property="Margin" Value="2" />
+        <Setter Property="Foreground" Value="#FFFFFF" />
+        <Setter Property="Transitions">
+            <Transitions>
+                <BrushTransition Property="Background" Duration="0:0:0.12" />
+            </Transitions>
+        </Setter>
+    </Style>
+
+    <Style Selector="ListBoxItem:pointerover">
+        <Setter Property="Background" Value="#33FFFFFF" />
+    </Style>
+
+    <Style Selector="ListBoxItem:selected">
+        <Setter Property="Background" Value="#26FFFFFF" />
+        <Setter Property="BorderBrush" Value="#6DD5FA" />
+        <Setter Property="BorderThickness" Value="0,0,0,3" />
+    </Style>
+
+    <!-- Glass panel style -->
+    <Style Selector="Border.glass">
+        <Setter Property="CornerRadius" Value="16" />
+        <Setter Property="Padding" Value="16" />
+        <Setter Property="Background" Value="#26FFFFFF" />
+        <Setter Property="BorderBrush" Value="#1AFFFFFF" />
+        <Setter Property="BorderThickness" Value="1" />
+    </Style>
+
+    <!-- Card style for panels -->
+    <Style Selector="Border.card">
+        <Setter Property="CornerRadius" Value="16" />
+        <Setter Property="Padding" Value="20" />
+        <Setter Property="BorderBrush" Value="#1AFFFFFF" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="Background">
+            <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                <GradientStop Offset="0.00" Color="#26FFFFFF" />
+                <GradientStop Offset="1.00" Color="#0DFFFFFF" />
+            </LinearGradientBrush>
+        </Setter>
+    </Style>
+
+    <!-- Typography classes -->
+    <Style Selector="TextBlock.heading">
+        <Setter Property="FontSize" Value="25" />
+        <Setter Property="FontWeight" Value="Light" />
+        <Setter Property="Foreground" Value="#FFFFFF" />
+    </Style>
+
+    <Style Selector="TextBlock.h2">
+        <Setter Property="FontSize" Value="16" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="Foreground" Value="#FFFFFF" />
+    </Style>
+
+    <Style Selector="TextBlock.subtitle">
+        <Setter Property="FontSize" Value="12.5" />
+        <Setter Property="Foreground" Value="#CCFFFFFF" />
+    </Style>
+
+    <Style Selector="TextBlock.body">
+        <Setter Property="FontSize" Value="13.5" />
+        <Setter Property="Foreground" Value="#FFFFFF" />
+    </Style>
+
+    <Style Selector="TextBlock.muted">
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="Foreground" Value="#80FFFFFF" />
+    </Style>
+
+    <Style Selector="TextBlock.label">
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="Foreground" Value="#CCFFFFFF" />
+    </Style>
+
+    <!-- ToggleButton (DSP pill toggles) -->
+    <Style Selector="ToggleButton">
+        <Setter Property="MinHeight" Value="28" />
+        <Setter Property="CornerRadius" Value="14" />
+        <Setter Property="Padding" Value="12,4" />
+        <Setter Property="FontSize" Value="11" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="Foreground" Value="#CCFFFFFF" />
+        <Setter Property="Background" Value="#26FFFFFF" />
+        <Setter Property="BorderBrush" Value="#1AFFFFFF" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="Transitions">
+            <Transitions>
+                <BrushTransition Property="Background" Duration="0:0:0.15" />
+                <BrushTransition Property="BorderBrush" Duration="0:0:0.15" />
+            </Transitions>
+        </Setter>
+    </Style>
+
+    <Style Selector="ToggleButton:checked">
+        <Setter Property="Background" Value="#4D6DD5FA" />
+        <Setter Property="BorderBrush" Value="#6DD5FA" />
+        <Setter Property="Foreground" Value="#FFFFFF" />
+    </Style>
+
+</Styles>

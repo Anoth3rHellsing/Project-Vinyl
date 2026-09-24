@@ -1,0 +1,8 @@
+﻿[22:56:36.233] [LOG_INIT] Audio logging started at C:\Users\nicol\OneDrive\Documents\ClaudeCode\Project-Vinyl\Executable
+[22:56:46.714] [PLAY_START] Track: Anya Nami - Will I Ever Love_ (official lyric video)_Rw5qbpCFJqM | File: C:\Users\nicol\Music\ProjectVinyl\Anya Nami - Will I Ever Love_ (official lyric video)_Rw5qbpCFJqM.webm
+[22:56:46.715] [PLAY_START] SourceFormat: SampleRate=48000 Channels=2 BitsPerSample=32 Duration=00:02:10.4810000
+[22:56:46.716] [PLAY_START] RequestedTempo: 1,000 | Volume: 0,500
+[22:56:46.716] [PLAY_START] DSP: Reverb=False(Mix=0,00) BassBoost=False(Gain=0,0dB Cutoff=100Hz)
+[22:56:46.727] [OUTPUT_INIT] Device: WasapiOut(SampleRate=48000 Channels=2 BitsPerSample=32)
+[22:56:46.733] [TIMESTRETCH_INIT] SourceSR=48000 Ch=2 Tempo=1,000 ReadBufSamples=19200 ReadBufMs=200
+[22:56:46.755] [PLAY_STARTED] Playback started successfully at tempo=1,000

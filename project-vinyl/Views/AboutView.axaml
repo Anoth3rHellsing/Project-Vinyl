@@ -1,0 +1,48 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:ProjectVinyl.ViewModels"
+             x:Class="ProjectVinyl.Views.AboutView"
+             x:DataType="vm:AboutViewModel">
+
+    <Border Classes="card" MaxWidth="640" HorizontalAlignment="Center" VerticalAlignment="Center">
+        <ScrollViewer>
+            <StackPanel Spacing="16" Margin="8">
+                <!-- Header -->
+                <TextBlock Text="{Binding Title}" Classes="heading" HorizontalAlignment="Center" />
+
+                <!-- Terms Summary -->
+                <Border Classes="glass" Padding="16">
+                    <StackPanel Spacing="8">
+                        <TextBlock Text="Terms &amp; Conditions" Classes="h2" />
+                        <TextBlock Text="{Binding TermsSummary}" Classes="body" TextWrapping="Wrap" />
+                    </StackPanel>
+                </Border>
+
+                <!-- Original Authors -->
+                <Border Classes="glass" Padding="16">
+                    <StackPanel Spacing="8">
+                        <TextBlock Text="Original Authors" Classes="h2" />
+                        <TextBlock Text="{Binding OriginalAuthors}" Classes="body" TextWrapping="Wrap" />
+                    </StackPanel>
+                </Border>
+
+                <!-- License -->
+                <Border Classes="glass" Padding="16">
+                    <StackPanel Spacing="8">
+                        <TextBlock Text="License (MIT)" Classes="h2" />
+                        <TextBlock Text="{Binding LicenseText}" Classes="muted" TextWrapping="Wrap"
+                                   FontFamily="Consolas" FontSize="11" />
+                    </StackPanel>
+                </Border>
+
+                <!-- Third-Party Libraries -->
+                <Border Classes="glass" Padding="16">
+                    <StackPanel Spacing="8">
+                        <TextBlock Text="Third-Party Libraries" Classes="h2" />
+                        <TextBlock Text="{Binding ThirdPartyLibraries}" Classes="body" TextWrapping="Wrap" />
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+        </ScrollViewer>
+    </Border>
+</UserControl>

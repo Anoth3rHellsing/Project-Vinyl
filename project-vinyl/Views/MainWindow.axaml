@@ -1,0 +1,133 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:ProjectVinyl.ViewModels"
+        xmlns:views="using:ProjectVinyl.Views"
+        xmlns:controls="using:ProjectVinyl.Controls"
+        x:Class="ProjectVinyl.Views.MainWindow"
+        x:DataType="vm:MainViewModel"
+        Title="Project Vinyl"
+        Width="1100" Height="750"
+        MinWidth="800" MinHeight="600"
+        WindowStartupLocation="CenterScreen">
+
+    <Design.DataContext>
+        <vm:MainViewModel />
+    </Design.DataContext>
+
+    <Grid>
+        <!-- Animated AeroNight Background (behind everything) -->
+        <controls:AeroNightBackgroundControl />
+
+        <DockPanel>
+        <!-- Top Navigation Bar -->
+        <Border DockPanel.Dock="Top" Classes="glass" Padding="16,8" Margin="16,12,16,0">
+            <Grid ColumnDefinitions="Auto,*,Auto">
+                <!-- App Title -->
+                <TextBlock Text="🎵 Project Vinyl" Classes="heading" VerticalAlignment="Center" />
+
+                <!-- Nav Buttons (centered) -->
+                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8"
+                            HorizontalAlignment="Center">
+                    <Button Content="Library" Classes="ghost"
+                            Command="{Binding NavigateToLibraryCommand}" />
+                    <Button Content="Vinyl Creator" Classes="ghost"
+                            Command="{Binding NavigateToCreatorCommand}" />
+                </StackPanel>
+
+                <!-- Status + About -->
+                <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
+                    <TextBlock Text="{Binding StatusMessage}" Classes="muted"
+                               VerticalAlignment="Center" MaxWidth="200" TextTrimming="CharacterEllipsis" />
+                    <Button Content="⚖ Legal" Classes="ghost" FontSize="11" Padding="10,4"
+                            Command="{Binding NavigateToAboutCommand}" />
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- Now Playing Bar (bottom, persistent) -->
+        <Border DockPanel.Dock="Bottom" Classes="glass" Margin="16,0,16,12" Padding="16,10">
+            <Grid RowDefinitions="Auto,Auto" RowSpacing="8">
+                <!-- Row 0: Track info + playback controls -->
+                <Grid Grid.Row="0" ColumnDefinitions="Auto,*,Auto" ColumnSpacing="16">
+                    <!-- Track Info -->
+                    <StackPanel Grid.Column="0" Spacing="2" MinWidth="180">
+                        <TextBlock Text="{Binding SelectedTrack.Title, FallbackValue='No track selected'}"
+                                   Classes="h2" TextTrimming="CharacterEllipsis" />
+                        <TextBlock Text="{Binding SelectedTrack.Artist, FallbackValue='—'}"
+                                   Classes="subtitle" TextTrimming="CharacterEllipsis" />
+                    </StackPanel>
+
+                    <!-- Playback Controls (centered) -->
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8"
+                                HorizontalAlignment="Center" VerticalAlignment="Center">
+                        <Button Content="⏮" Classes="circle" Command="{Binding PreviousCommand}" />
+                        <Button Content="{Binding IsPlaying, Converter={x:Static vm:BoolToPlayPauseConverter.Instance}}"
+                                Classes="circle" Command="{Binding TogglePlayCommand}" />
+                        <Button Content="⏭" Classes="circle" Command="{Binding NextCommand}" />
+                        <Button Content="⏹" Classes="circle" Command="{Binding StopCommand}" />
+                    </StackPanel>
+
+                    <!-- Visualizer (right side) -->
+                    <controls:AudioVisualizerControl Grid.Column="2"
+                                                     VisualizerService="{Binding VisualizerService}"
+                                                     IsActive="{Binding IsPlaying}"
+                                                     Width="120" Height="40" />
+                </Grid>
+
+                <!-- Row 1: Seek + Speed + Volume + DSP -->
+                <Grid Grid.Row="1" ColumnDefinitions="*,Auto,Auto,Auto" ColumnSpacing="16">
+                    <!-- Seek slider with time labels -->
+                    <Grid Grid.Column="0" ColumnDefinitions="Auto,*,Auto" ColumnSpacing="8">
+                        <TextBlock Grid.Column="0" Classes="label" MinWidth="40"
+                                   Text="{Binding CurrentPosition, StringFormat='{}{0:mm\\:ss}'}" />
+                        <Slider Grid.Column="1" Minimum="0" Maximum="100"
+                                Value="{Binding SeekPositionPercent}"
+                                PointerPressed="OnSeekPointerPressed"
+                                PointerReleased="OnSeekPointerReleased" />
+                        <TextBlock Grid.Column="2" Classes="label" MinWidth="40"
+                                   Text="{Binding TotalDuration, StringFormat='{}{0:mm\\:ss}'}" />
+                    </Grid>
+
+                    <!-- Speed control with label -->
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
+                        <TextBlock Text="Speed" Classes="label" VerticalAlignment="Center" />
+                        <Slider Minimum="50" Maximum="200" Width="100"
+                                Value="{Binding PlaybackSpeedPercent}" />
+                        <TextBlock Classes="label" MinWidth="36" VerticalAlignment="Center"
+                                   Text="{Binding PlaybackSpeedPercent, StringFormat='{}{0:F0}%'}" />
+                    </StackPanel>
+
+                    <!-- Volume control with label -->
+                    <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
+                        <TextBlock Text="🔊" FontSize="14" VerticalAlignment="Center" />
+                        <Slider Minimum="0" Maximum="1" Width="80"
+                                Value="{Binding Volume}" />
+                        <TextBlock Classes="label" MinWidth="32" VerticalAlignment="Center"
+                                   Text="{Binding Volume, StringFormat='{}{0:P0}'}" />
+                    </StackPanel>
+
+                    <!-- DSP toggles -->
+                    <StackPanel Grid.Column="3" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
+                        <ToggleButton Content="Reverb" IsChecked="{Binding IsReverbEnabled}" />
+                        <ToggleButton Content="Bass" IsChecked="{Binding IsBassBoostEnabled}" />
+                    </StackPanel>
+                </Grid>
+            </Grid>
+        </Border>
+
+        <!-- Main Content Area (switches between Library and Vinyl Creator) -->
+        <ContentControl Content="{Binding CurrentView}" Margin="16,8,16,8">
+            <ContentControl.DataTemplates>
+                <!-- Library view: bound when CurrentView == MainViewModel itself -->
+                <DataTemplate DataType="vm:MainViewModel">
+                    <views:LibraryView />
+                </DataTemplate>
+                <!-- Vinyl Creator view -->
+                <DataTemplate DataType="vm:VinylCreatorViewModel">
+                    <views:VinylCreatorView />
+                </DataTemplate>
+            </ContentControl.DataTemplates>
+        </ContentControl>
+        </DockPanel>
+    </Grid>
+</Window>

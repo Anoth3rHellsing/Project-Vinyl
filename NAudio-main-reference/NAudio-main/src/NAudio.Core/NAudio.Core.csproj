@@ -1,0 +1,17 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <IsAotCompatible>true</IsAotCompatible>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <Description>Core audio types, wave format and provider interfaces, sample providers, file readers/writers, DSP, and resampling for the NAudio audio library.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- TensorPrimitives powers the vectorised mix-add / volume kernels.
+         Ships as a NuGet package until it is incorporated into the BCL. -->
+    <PackageReference Include="System.Numerics.Tensors" Version="9.0.0" />
+  </ItemGroup>
+
+</Project>

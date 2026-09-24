@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(powershell -Command \"Get-ChildItem -Path 'D:\\\\ClaudeCodeD\\\\UI Kits\\\\AeroNight' -Recurse | Select-Object FullName, Length | Format-Table -AutoSize\")",
+      "Bash(powershell -NoProfile -Command 'dotnet build \"D:\\\\ClaudeCodeD\\\\Project-Vinyl\\\\project-vinyl\\\\ProjectVinyl.csproj\" --no-restore 2>&1 | Select-Object -Last 30')",
+      "Bash(powershell -NoProfile -Command 'dotnet build \"D:\\\\ClaudeCodeD\\\\Project-Vinyl\\\\project-vinyl\\\\ProjectVinyl.csproj\" --no-restore 2>&1 | Select-Object -Last 25')"
+    ]
+  }
+}

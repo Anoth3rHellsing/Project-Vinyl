@@ -1,0 +1,85 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:ProjectVinyl.ViewModels"
+             xmlns:models="using:ProjectVinyl.Models"
+             xmlns:controls="using:ProjectVinyl.Controls"
+             x:Class="ProjectVinyl.Views.LibraryView"
+             x:DataType="vm:MainViewModel">
+
+    <Grid ColumnDefinitions="220,*" ColumnSpacing="12">
+        <!-- Left Sidebar: Categories + Filters -->
+        <Border Grid.Column="0" Classes="glass">
+            <DockPanel>
+                <!-- Search Box -->
+                <TextBox DockPanel.Dock="Top" PlaceholderText="Search tracks..."
+                         Text="{Binding SearchQuery}" Margin="0,0,0,12" />
+
+                <!-- Category Buttons -->
+                <StackPanel DockPanel.Dock="Top" Spacing="4" Margin="0,0,0,12">
+                    <TextBlock Text="Browse" Classes="label" Margin="0,0,0,4" />
+                    <Button Content="All" Classes="ghost" HorizontalAlignment="Stretch"
+                            Command="{Binding SelectCategoryCommand}" CommandParameter="All" />
+                    <Button Content="Artists" Classes="ghost" HorizontalAlignment="Stretch"
+                            Command="{Binding SelectCategoryCommand}" CommandParameter="Artists" />
+                    <Button Content="Albums" Classes="ghost" HorizontalAlignment="Stretch"
+                            Command="{Binding SelectCategoryCommand}" CommandParameter="Albums" />
+                    <Button Content="Genres" Classes="ghost" HorizontalAlignment="Stretch"
+                            Command="{Binding SelectCategoryCommand}" CommandParameter="Genres" />
+                </StackPanel>
+
+                <!-- Filter Values List -->
+                <TextBlock Text="{Binding SelectedCategory}" Classes="label" Margin="0,0,0,4"
+                           IsVisible="{Binding FilterOptions.Count, Converter={x:Static vm:IntToBoolConverter.Instance}}" />
+                <ListBox ItemsSource="{Binding FilterOptions}"
+                         SelectedItem="{Binding SelectedFilterValue}"
+                         SelectionMode="Single"
+                         IsVisible="{Binding FilterOptions.Count, Converter={x:Static vm:IntToBoolConverter.Instance}}">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding}" Classes="body" TextTrimming="CharacterEllipsis" />
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </DockPanel>
+        </Border>
+
+        <!-- Right: Track List + Visualizer -->
+        <DockPanel Grid.Column="1">
+            <!-- Full-size Visualizer (top) -->
+            <controls:AudioVisualizerControl DockPanel.Dock="Top"
+                                             VisualizerService="{Binding VisualizerService}"
+                                             IsActive="{Binding IsPlaying}"
+                                             Height="120" Margin="0,0,0,8" />
+
+            <!-- Track count header -->
+            <TextBlock DockPanel.Dock="Top" Classes="subtitle" Margin="0,0,0,8"
+                       Text="{Binding FilteredLibrary.Count, StringFormat='{}{0} tracks'}" />
+
+            <!-- Track List -->
+            <ListBox ItemsSource="{Binding FilteredLibrary}"
+                     SelectedItem="{Binding SelectedTrack}"
+                     SelectionMode="Single">
+                <ListBox.ItemTemplate>
+                    <DataTemplate x:DataType="models:Track">
+                        <Grid ColumnDefinitions="*,Auto" Margin="4,2">
+                            <StackPanel Grid.Column="0" Spacing="2">
+                                <TextBlock Text="{Binding Title}" Classes="body" FontWeight="SemiBold"
+                                           TextTrimming="CharacterEllipsis" />
+                                <TextBlock Classes="muted" TextTrimming="CharacterEllipsis">
+                                    <TextBlock.Text>
+                                        <MultiBinding StringFormat="{}{0} — {1}">
+                                            <Binding Path="Artist" />
+                                            <Binding Path="Album" />
+                                        </MultiBinding>
+                                    </TextBlock.Text>
+                                </TextBlock>
+                            </StackPanel>
+                            <TextBlock Grid.Column="1" Text="{Binding Duration, StringFormat='{}{0:mm\\:ss}'}"
+                                       Classes="muted" VerticalAlignment="Center" />
+                        </Grid>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+        </DockPanel>
+    </Grid>
+</UserControl>

@@ -1,0 +1,275 @@
+name: release
+
+# Two triggers:
+#   - workflow_dispatch (manual): cuts a pre-release. By default produces
+#     "<VersionPrefix>-preview.<run_number>"; an optional `milestone` input
+#     overrides the suffix (e.g. "alpha.1", "beta.2", "rc.1").
+#   - push of a v* tag: cuts a final release matching <VersionPrefix>.
+# See Docs/Architecture/ReleaseStrategy.md for the broader release flow.
+on:
+  workflow_dispatch:
+    inputs:
+      milestone:
+        description: "Optional pre-release label (e.g. alpha.1, beta.2, rc.1). Leave blank for auto preview.<run_number>."
+        required: false
+        type: string
+  push:
+    tags: ['v*']
+
+permissions:
+  id-token: write    # for NuGet trusted publishing (OIDC)
+  contents: write    # for `gh release create`
+
+jobs:
+  release:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0   # full history so gh release --generate-notes can diff against the previous tag
+
+      # Dispatch must come from main. Tag pushes are unrestricted because
+      # the tag itself is the gate.
+      - name: Verify branch (dispatch only)
+        if: github.event_name == 'workflow_dispatch'
+        shell: pwsh
+        run: |
+          if ($env:GITHUB_REF -ne 'refs/heads/main') {
+            Write-Error "Release dispatch must be from main (got $env:GITHUB_REF)."
+            exit 1
+          }
+
+      - name: Determine version
+        id: version
+        shell: pwsh
+        run: |
+          [xml]$props = Get-Content Directory.Build.props
+          $prefix = $props.Project.PropertyGroup.VersionPrefix
+          if (-not $prefix) {
+            Write-Error "VersionPrefix not found in Directory.Build.props"
+            exit 1
+          }
+
+          if ($env:GITHUB_REF -like 'refs/tags/v*') {
+            $tagVersion = $env:GITHUB_REF -replace 'refs/tags/v',''
+            if ($tagVersion -ne $prefix) {
+              Write-Error "Tag v$tagVersion does not match VersionPrefix $prefix in Directory.Build.props. Bump the prefix and retag."
+              exit 1
+            }
+            $version = $tagVersion
+            $packArgs = ""
+            $isFinal = 'true'
+          } else {
+            $milestone = '${{ inputs.milestone }}'
+            if ([string]::IsNullOrWhiteSpace($milestone)) {
+              $suffix = "preview.${{ github.run_number }}"
+            } else {
+              $suffix = $milestone.Trim()
+            }
+            $version = "$prefix-$suffix"
+            $packArgs = "-p:VersionSuffix=$suffix"
+            $isFinal = 'false'
+          }
+
+          Write-Host "Resolved version: $version (is_final=$isFinal)"
+          "version=$version"     | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+          "is_final=$isFinal"    | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+          "pack_args=$packArgs"  | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+
+      # Extract the right section from RELEASE_NOTES.md into release-body.md.
+      # Final releases use the '### <version>' section (and must have one,
+      # else fail-fast). Pre-releases use the '### Unreleased' section if it
+      # exists; otherwise the file is just empty and the package ships with
+      # no release notes. The same release-body.md feeds both the pack step
+      # (via -p:PackageReleaseNotesFile so NuGet displays the notes on the
+      # package page) and the GitHub Release body (finals only).
+      - name: Extract RELEASE_NOTES.md section
+        shell: pwsh
+        run: |
+          $version = '${{ steps.version.outputs.version }}'
+          $isFinal = '${{ steps.version.outputs.is_final }}' -eq 'true'
+
+          if ($isFinal) {
+            $pattern = "^### $([regex]::Escape($version))(\s|$)"
+            $label = "### $version"
+          } else {
+            $pattern = "^### Unreleased(\s|$)"
+            $label = "### Unreleased"
+          }
+
+          $lines = Get-Content RELEASE_NOTES.md
+          $start = -1
+          $end = $lines.Length
+          for ($i = 0; $i -lt $lines.Length; $i++) {
+            if ($lines[$i] -match $pattern) {
+              $start = $i + 1
+            } elseif ($start -ge 0 -and $lines[$i] -match "^### ") {
+              $end = $i
+              break
+            }
+          }
+
+          if ($start -lt 0) {
+            if ($isFinal) {
+              Write-Error "RELEASE_NOTES.md has no '$label (...)' section. Rename '### Unreleased' to '### $version (DD MMM YYYY)' before tagging."
+              exit 1
+            } else {
+              Write-Warning "RELEASE_NOTES.md has no '$label' section; package release notes will be empty."
+              "" | Out-File -FilePath release-body.md -Encoding utf8
+            }
+          } else {
+            $body = $lines[$start..($end - 1)] -join "`n"
+            # Strip HTML comments — useful for contributors editing
+            # RELEASE_NOTES.md but noisy on the NuGet page / GitHub Release.
+            $body = [regex]::Replace($body, '<!--[\s\S]*?-->', '').Trim()
+
+            # NuGet.org caps PackageReleaseNotes at 35,000 characters and
+            # rejects an oversized package at *push* time — i.e. after a
+            # successful pack, part-way through the release, with the tag
+            # already pushed. Fail here instead, before anything is built.
+            $limit = 35000
+            if ($body.Length -gt $limit) {
+              Write-Error "Release notes section '$label' is $($body.Length) chars, over NuGet's $limit-character PackageReleaseNotes limit. Trim RELEASE_NOTES.md — keep headline features and breaking changes, and let the auto-generated PR list on the GitHub Release carry the per-commit detail."
+              exit 1
+            }
+
+            $body | Out-File -FilePath release-body.md -Encoding utf8
+            Write-Host "Extracted '$label' ($($body.Length) of $limit chars) to release-body.md."
+          }
+
+      - name: Restore
+        run: dotnet restore NAudio.slnx
+
+      - name: Build
+        run: dotnet build NAudio.slnx --configuration Release --no-restore ${{ steps.version.outputs.pack_args }}
+
+      - name: Test
+        run: >
+          dotnet test --solution NAudio.slnx
+          --configuration Release
+          --no-build
+          --filter "TestCategory!=IntegrationTest"
+
+      # Pack the NAudio NuGet packages explicitly so we don't accidentally
+      # ship the tool/sample apps. Tools (MixDiff, AudioFileInspector,
+      # MidiFileConverter) keep their own <Version> in csproj but we never
+      # publish them to NuGet. NAudio.Alsa, NAudio.SoundFile and NAudio.MacOS
+      # are the cross-platform backend/codec packages — net9.0 (no -windows
+      # TFM), so they build and pack fine on the windows-latest runner; their
+      # *.Tests projects are IsPackable=false and excluded here.
+      #
+      # NAudio.MacOS is the one package that does not follow the lockstep
+      # version: it always packs pre-release, even on a final tag run. That
+      # is enforced in its own csproj rather than here, so nothing in this
+      # workflow needs to know about the exception — see the comment in
+      # src/NAudio.MacOS/NAudio.MacOS.csproj.
+      - name: Pack
+        shell: pwsh
+        run: |
+          $packages = @(
+            'NAudio.Core',
+            'NAudio.Asio',
+            'NAudio.WinForms',
+            'NAudio.Midi',
+            'NAudio.WinMM',
+            'NAudio.Wasapi',
+            'NAudio.Dmo',
+            'NAudio.Vst3',
+            'NAudio.Alsa',
+            'NAudio.SoundFile',
+            'NAudio.MacOS',
+            'NAudio.Sampler',
+            'NAudio',
+            'NAudio.Extras'
+          )
+          $notesPath = Join-Path $env:GITHUB_WORKSPACE "release-body.md"
+          New-Item -ItemType Directory -Force -Path artifacts | Out-Null
+          foreach ($pkg in $packages) {
+            dotnet pack "src/$pkg/$pkg.csproj" `
+              --configuration Release `
+              --no-build `
+              --output artifacts `
+              -p:PackageReleaseNotesFile="$notesPath" `
+              ${{ steps.version.outputs.pack_args }}
+            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          }
+
+      - name: Upload package artifacts
+        uses: actions/upload-artifact@v7
+        with:
+          name: nupkg-${{ steps.version.outputs.version }}
+          path: |
+            artifacts/*.nupkg
+            artifacts/*.snupkg
+          if-no-files-found: error
+
+      # NuGet trusted publishing via OIDC. The trusted-publisher policy
+      # is configured on NuGet.org per Phase 7 of the release strategy.
+      # If this step needs adjustment after Phase 7's smoke test, update
+      # here — the rest of the workflow is independent of the auth method.
+      - name: NuGet login (trusted publishing)
+        id: nuget-login
+        uses: NuGet/login@v1
+        with:
+          user: ${{ vars.NUGET_USER }}
+
+      # dotnet nuget push does not expand globs on its own, and PowerShell
+      # does not expand wildcards in arguments to external commands. So loop
+      # over the artifacts explicitly. This also gives per-package error
+      # reporting. We iterate .nupkg files only; the matching .snupkg
+      # symbol packages sitting next to each .nupkg are pushed automatically
+      # by `dotnet nuget push` in the same call.
+      - name: Push to NuGet
+        shell: pwsh
+        run: |
+          $packages = Get-ChildItem -Path "artifacts\*.nupkg"
+          if (-not $packages) {
+            Write-Error "No .nupkg files found in artifacts/"
+            exit 1
+          }
+          foreach ($pkg in $packages) {
+            Write-Host "Pushing $($pkg.Name)"
+            dotnet nuget push $pkg.FullName `
+              --api-key ${{ steps.nuget-login.outputs.NUGET_API_KEY }} `
+              --source https://api.nuget.org/v3/index.json `
+              --skip-duplicate
+            if ($LASTEXITCODE -ne 0) {
+              Write-Error "Failed to push $($pkg.Name)"
+              exit $LASTEXITCODE
+            }
+          }
+
+      # GitHub Release only on final tag-driven runs. Pre-releases just
+      # ship to NuGet — no GitHub Release noise for every preview. The
+      # release-body.md file was already produced by the earlier
+      # "Extract RELEASE_NOTES.md section" step.
+      #
+      # The .nupkg files are attached as release assets. artifacts/ is still
+      # on disk from the Pack step, so there is no artifact round-trip. This
+      # also gives a permanent copy of exactly what shipped: Actions artifacts
+      # expire (90 days by default), release assets do not. Symbol packages
+      # are deliberately left off — they go to NuGet's symbol server and would
+      # only double the asset list here.
+      #
+      # gh does not expand globs, and PowerShell does not expand wildcards in
+      # arguments to external commands, so the file list is built explicitly —
+      # same reason as the Push step above.
+      - name: Create GitHub Release (final only)
+        if: steps.version.outputs.is_final == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: pwsh
+        run: |
+          $assets = @(Get-ChildItem -Path "artifacts\*.nupkg" | ForEach-Object { $_.FullName })
+          if ($assets.Count -eq 0) {
+            Write-Error "No .nupkg files found in artifacts/ to attach to the release"
+            exit 1
+          }
+          Write-Host "Attaching $($assets.Count) package(s) to the release"
+          gh release create "v${{ steps.version.outputs.version }}" `
+            --title "NAudio ${{ steps.version.outputs.version }}" `
+            --notes-file release-body.md `
+            --verify-tag `
+            @assets

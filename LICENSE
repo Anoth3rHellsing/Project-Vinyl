@@ -1,0 +1,41 @@
+MIT License
+
+Copyright (c) 2026 Project Vinyl Authors
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+---
+
+## Original Authors
+
+- **nicol** — Project creator, design, and direction
+- **Claude (Anthropic)** — AI co-author, implementation, and code generation
+
+## Third-Party Libraries
+
+This project uses the following open-source libraries:
+
+- [Avalonia UI](https://github.com/AvaloniaUI/Avalonia) — MIT License
+- [NAudio](https://github.com/naudio/NAudio) — MIT License
+- [SoundTouch.Net](https://github.com/owais/SoundTouch.Net) — LGPL License
+- [TagLibSharp](https://github.com/mono/taglib-sharp) — LGPL License
+- [YoutubeExplode](https://github.com/Tyrrrz/YoutubeExplode) — MIT License
+- [CommunityToolkit.Mvvm](https://github.com/CommunityToolkit/dotnet) — MIT License
+- [SkiaSharp](https://github.com/mono/SkiaSharp) — MIT License
+- [HarfBuzzSharp](https://github.com/mono/SkiaSharp) — MIT License

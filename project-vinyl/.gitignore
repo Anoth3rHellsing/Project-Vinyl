@@ -1,0 +1,24 @@
+## .NET
+bin/
+obj/
+*.user
+*.suo
+*.cache
+*.dll
+*.exe
+*.pdb
+
+## NuGet
+*.nupkg
+**/[Pp]ackages/*
+
+## IDE
+.vs/
+.idea/
+*.swp
+*~.nib
+
+## OS
+Thumbs.db
+.DS_Store
+NAudio-main/

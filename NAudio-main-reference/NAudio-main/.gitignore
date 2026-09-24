@@ -1,0 +1,36 @@
+[bB]in/
+[oO]bj/
+[pP]ackages/
+AppPackages/
+TestResults/
+TestResult.xml
+BuildArtefacts/
+_ReSharper*/
+*.suo
+*.ncrunchsolution
+*.user
+*.ncrunchproject
+*.orig
+*.lock.json
+# Jetbrains
+*.idea
+.vs/
+.fake/
+*.DotSettings
+.claude/worktrees/
+.claude/settings.local.json
+.claude/scheduled_tasks.lock
+.claude/scheduled_tasks/
+BenchmarkDotNet.Artifacts/
+tests/MfStressTest/dumps/
+# NAudioConsoleTest run-batch output (default location: Reports/<timestamp>/)
+[rR]eports/
+# procdump.exe (used by MfStressTest watchdog) writes a 0-byte log to the
+# target process's working directory each time it captures a dump.
+myeasylog.log
+# DocFX generated output
+docfx/_site/
+docfx/api/*.yml
+docfx/api/.manifest
+# macOS APFS files
+.DS_Store
